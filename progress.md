@@ -10,3 +10,7 @@ Original prompt: no dobře hele, a jak z toho teď uděláme ty github sites?
 - The first Pages run required the `locales` submodule; the workflow now fetches only that small build-time dependency.
 - GitHub Pages must be enabled once for a newly created fork; `configure-pages` now performs that enablement.
 - The deployable standalone repository is `FEENGNEEF/pokerogue-sandbox`, so the production base path is `/pokerogue-sandbox/`.
+
+## Sandbox unlock follow-up
+
+- Existing save data could overwrite the initially unlocked Pokédex. `GameData` now reapplies all obtainable shiny variants (including rare and epic), forms, natures, and perfect IVs after a save is loaded.

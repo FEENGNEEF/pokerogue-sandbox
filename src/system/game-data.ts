@@ -421,6 +421,7 @@ export class GameData {
 
     this.dexData = Object.assign(this.dexData, systemData.dexData);
     this.consolidateDexData(this.dexData);
+    this.applySandboxDexUnlocks();
     this.defaultDexData = null;
   }
 
@@ -1643,6 +1644,23 @@ export class GameData {
 
     this.defaultDexData = { ...data };
     this.dexData = data;
+  }
+
+  /** Ensures existing save files receive the sandbox's complete shiny collection too. */
+  private applySandboxDexUnlocks(): void {
+    for (const species of speciesDataRegistry.getAllSpecies()) {
+      const entry = this.dexData[species.speciesId];
+      if (!entry) {
+        continue;
+      }
+
+      const unlocks = species.getFullUnlocksData();
+      entry.seenAttr |= unlocks;
+      entry.caughtAttr |= unlocks;
+      entry.natureAttr = (1 << 25) - 2;
+      entry.caughtCount = Math.max(entry.caughtCount, 1);
+      entry.ivs = [31, 31, 31, 31, 31, 31];
+    }
   }
 
   private initStarterData(): void {
