@@ -269,11 +269,6 @@ export abstract class BaseOptionSelectUiHandler extends UiHandler {
     return success;
   }
 
-  /** Read-only option metadata used by accessibility tools and the sandbox autopilot. */
-  public getOptionLabels(): readonly string[] {
-    return this.config?.options.map(option => option.label) ?? [];
-  }
-
   protected unblockInput(): void {
     if (!this.blockInput) {
       return;

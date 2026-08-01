@@ -32,3 +32,8 @@ Original prompt: no dobře hele, a jak z toho teď uděláme ty github sites?
 - The autopilot now waits for `awaitingActionInput` before dismissing a dialogue, which is the same safe point as pressing Space manually.
 - Party actions now select an explicit useful option (such as Send Out) and switching only considers party members on the bench, never the active battler.
 - Verified in an isolated Playwright browser: a clean run advanced automatically to wave 3 with no browser console errors. TypeScript typecheck and the production Vite build pass.
+
+## Autoplay decision
+
+- Removed the experimental autoplay bot at the user's request. It was capable of common paths but not reliable enough around rare party, move-selection, and event menus. The sandbox keeps the loading fix and all unlocks, and is intended for normal manual play.
+- Post-removal verification: TypeScript typecheck and production Vite build pass. A headed local browser screenshot shows the normal title menu with no BOT control. The skill's dedicated Playwright client could not run because its `playwright` package is not installed; the existing Playwright CLI was used for the browser verification instead.
