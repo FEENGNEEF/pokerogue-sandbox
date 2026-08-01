@@ -462,12 +462,12 @@ export function initMoveAnim(move: MoveId): Promise<void> {
       const fetchAnimAndResolve = (move: MoveId) => {
         cachedFetch(`./battle-anims/${toKebabCase(MoveId[move])}.json`)
           .then(response => {
-            const contentType = response.headers.get("content-type");
-            if (!response.ok || contentType?.indexOf("application/json") === -1) {
-              useDefaultAnim(move, defaultMoveAnim);
-              logMissingMoveAnim(move, response.status, response.statusText);
-              return resolve();
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
             }
+
+            // GitHub's raw-file endpoint sends valid JSON as text/plain. Parsing the
+            // response is more reliable than rejecting it based on the MIME type.
             return response.json();
           })
           .then(ba => {

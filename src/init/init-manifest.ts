@@ -1,7 +1,7 @@
 import { initializeManifest } from "#app/global-manifest";
 
 try {
-  const manifest = await fetch("/manifest.json").then(r => r.json());
+  const manifest = await fetch(`${import.meta.env.BASE_URL}manifest.json`).then(r => r.json());
   initializeManifest(manifest["manifest"]);
 } catch (err) {
   // Manifest not found (likely local build or path error on live)

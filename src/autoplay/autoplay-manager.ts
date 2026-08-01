@@ -1,9 +1,11 @@
 import { globalScene } from "#app/global-scene";
 import { Button } from "#enums/buttons";
 import { Command } from "#enums/command";
+import { PartyUiMode } from "#enums/party-ui-mode";
 import { PokeballType } from "#enums/pokeball";
 import { UiMode } from "#enums/ui-mode";
 import type { Pokemon } from "#field/pokemon";
+import { PartyOption } from "#ui/party-ui-handler";
 import type { UiHandler } from "#ui/ui-handler";
 
 type RuntimeHandler = UiHandler & Record<string, any>;
@@ -186,7 +188,10 @@ export class AutoplayManager {
         this.handleConfirm(handler);
         return;
       case UiMode.MESSAGE:
-        if (!handler.pendingPrompt || handler.isTextAnimationInProgress?.()) {
+        // `textTimer` remains allocated after the typewriter animation finishes,
+        // so its presence is not a reliable readiness signal. The handler exposes
+        // `awaitingActionInput` precisely when Space/Action can dismiss the prompt.
+        if (!handler.awaitingActionInput) {
           this.setAction("Čekám na dokončení zprávy");
           return;
         }
@@ -420,10 +425,35 @@ export class AutoplayManager {
       return;
     }
 
+    if (handler.optionsMode) {
+      const options = (handler.options ?? []) as PartyOption[];
+      const preferredOptions = [
+        PartyOption.SEND_OUT,
+        PartyOption.PASS_BATON,
+        PartyOption.SELECT,
+        PartyOption.APPLY,
+        PartyOption.TEACH,
+        PartyOption.REVIVE,
+      ];
+      const optionIndex = preferredOptions.map(option => options.indexOf(option)).find(index => index >= 0);
+
+      if (optionIndex != null) {
+        handler.setCursor(optionIndex);
+        this.press(Button.ACTION, "Potvrzuji akci pro vybraného Pokémona");
+      } else {
+        this.press(Button.CANCEL, "Zavírám nepoužitelnou nabídku týmu");
+      }
+      return;
+    }
+
     const party = globalScene.getPlayerParty();
+    const switching = [PartyUiMode.SWITCH, PartyUiMode.FAINT_SWITCH, PartyUiMode.POST_BATTLE_SWITCH].includes(
+      handler.partyUiMode,
+    );
+    const activeSlotCount = globalScene.currentBattle?.getBattlerCount?.() ?? 1;
     const candidates = party
       .map((pokemon, index) => ({ pokemon, index }))
-      .filter(({ pokemon }) => !pokemon.isFainted())
+      .filter(({ pokemon, index }) => !pokemon.isFainted() && (!switching || index >= activeSlotCount))
       .sort((a, b) => {
         if (this.desiredPartyIndex != null) {
           return Number(b.index === this.desiredPartyIndex) - Number(a.index === this.desiredPartyIndex);
@@ -436,7 +466,7 @@ export class AutoplayManager {
     }
     handler.setCursor(candidates[0].index);
     this.desiredPartyIndex = null;
-    this.press(Button.ACTION, "Vybírám nejzdravějšího člena týmu");
+    this.press(Button.ACTION, switching ? "Vybírám náhradníka z lavičky" : "Vybírám nejzdravějšího člena týmu");
   }
 
   private handleOptionSelect(handler: RuntimeHandler): void {

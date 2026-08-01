@@ -24,3 +24,11 @@ Original prompt: no dobře hele, a jak z toho teď uděláme ty github sites?
 - Typecheck and production build pass. Battle scoring now uses simulated damage, accuracy, KO bonus, move benefit, STAB/effectiveness through the engine, capture-safe damage, emergency switching, and multi-starter budget filling.
 - Automated browser testing is temporarily blocked because the environment refused the local Playwright install after the account tool-usage limit was reached; continue static/unit verification in the meantime.
 - Added semantic handling for the four-choice full-party capture confirmation and move-learning summaries; new moves replace only the weakest existing move when their estimated value is higher.
+
+## Start and autoplay reliability follow-up
+
+- Fixed GitHub Pages start-of-run asset loading: upstream raw JSON assets are served as `text/plain`, so battle animation loading now accepts successful responses and parses their JSON instead of rejecting them by MIME type.
+- Fixed the Pages manifest URL so it is resolved below the production base path rather than the domain root.
+- The autopilot now waits for `awaitingActionInput` before dismissing a dialogue, which is the same safe point as pressing Space manually.
+- Party actions now select an explicit useful option (such as Send Out) and switching only considers party members on the bench, never the active battler.
+- Verified in an isolated Playwright browser: a clean run advanced automatically to wave 3 with no browser console errors. TypeScript typecheck and the production Vite build pass.
