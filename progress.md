@@ -19,7 +19,7 @@ Original prompt: no dobře hele, a jak z toho teď uděláme ty github sites?
 
 - Goal: an integrated autopilot that can play the sandbox visibly in Chrome without screen scraping.
 - Added an initial `AutoplayManager` that drives the real UI handlers, exposes `window.pokerogueBot` and `window.render_game_to_text`, chooses strong starters and moves, catches shiny/legendary Pokémon, handles rewards, party prompts, confirmations, save slots, and common transitions.
-- The bot is enabled by default and has a visible `BOT: ON/OFF` control with current-action status.
+- The bot has a visible `BOT: ON/OFF` control with current-action status.
 - TODO: typecheck/build, run Playwright game flow tests, inspect screenshots, harden uncommon prompts, and deploy only after verification.
 - Typecheck and production build pass. Battle scoring now uses simulated damage, accuracy, KO bonus, move benefit, STAB/effectiveness through the engine, capture-safe damage, emergency switching, and multi-starter budget filling.
 - Automated browser testing is temporarily blocked because the environment refused the local Playwright install after the account tool-usage limit was reached; continue static/unit verification in the meantime.
@@ -33,7 +33,7 @@ Original prompt: no dobře hele, a jak z toho teď uděláme ty github sites?
 - Party actions now select an explicit useful option (such as Send Out) and switching only considers party members on the bench, never the active battler.
 - Verified in an isolated Playwright browser: a clean run advanced automatically to wave 3 with no browser console errors. TypeScript typecheck and the production Vite build pass.
 
-## Autoplay decision
+## Autoplay restoration
 
-- Removed the experimental autoplay bot at the user's request. It was capable of common paths but not reliable enough around rare party, move-selection, and event menus. The sandbox keeps the loading fix and all unlocks, and is intended for normal manual play.
-- Post-removal verification: TypeScript typecheck and production Vite build pass. A headed local browser screenshot shows the normal title menu with no BOT control. The skill's dedicated Playwright client could not run because its `playwright` package is not installed; the existing Playwright CLI was used for the browser verification instead.
+- Restored the experimental bot from its prior implementation at the user's request; no game logic was recreated from scratch.
+- It starts OFF under a new persisted preference key, so the earlier bot's saved ON state cannot reactivate it. While OFF, `step()` returns before reading or sending any game input. Clicking `BOT: ON` is the only way to enable it.

@@ -1,5 +1,6 @@
 import { applyAbAttrs } from "#abilities/apply-ab-attrs";
 import { Animation } from "#app/animations";
+import { AutoplayManager } from "#app/autoplay/autoplay-manager";
 import { Battle } from "#app/battle";
 import {
   ANTI_VARIANCE_WEIGHT_MODIFIER,
@@ -178,6 +179,7 @@ export interface InfoToggle {
 // TODO: Breakup into multiple scenes if possible/practical
 export class BattleScene extends SceneBase {
   public inputController: InputsController;
+  public autoplayManager: AutoplayManager;
   public uiInputs: UiInputs;
 
   public sessionPlayTime: number | null = null;
@@ -429,6 +431,7 @@ export class BattleScene extends SceneBase {
 
   update() {
     this.ui?.update();
+    this.autoplayManager?.step();
   }
 
   // TODO: Split this up into multiple sub-methods
@@ -644,6 +647,8 @@ export class BattleScene extends SceneBase {
     this.ui = new UI();
     this.uiContainer.add(this.ui);
     this.ui.setup();
+
+    this.autoplayManager = new AutoplayManager();
 
     this.phaseManager.toTitleScreen(true);
     this.phaseManager.shiftPhase();
